@@ -1,6 +1,8 @@
 package es.upm.dit.aled.lab3.binary;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import es.upm.dit.aled.lab3.FASTAReader;
@@ -78,8 +80,61 @@ public class FASTAReaderSuffixes extends FASTAReader {
 	 */
 	@Override
 	public List<Integer> search(byte[] pattern) {
-		// TODO
-		return null;
+		int high = this.suffixes.length;
+		int low = 0;
+		boolean search = true;
+		List<Integer> lista = new ArrayList<Integer>();
+		int indice;
+		indice = 0;
+		while (search) {
+			int med = (low+high)/2;
+			Suffix m = this.suffixes[med];
+			int s = m.suffixIndex;
+			while (s + indice < content.length &&
+		               indice < pattern.length &&
+		               pattern[indice] == content[s + indice]) {
+				indice++;
+			}
+				if (indice == pattern.length) {
+					lista.add(s);
+					 int left = med - 1;
+			            while (left >= 0) {
+			                Suffix leftSuffix = this.suffixes[left];
+			                int start = leftSuffix.suffixIndex;
+			                int i = 0;
+			                while (start + i < content.length &&
+			                       i < pattern.length &&
+			                       pattern[i] == content[start + i]) {
+			                    i++;
+			                }
+			                if (i == pattern.length) {
+			                    lista.add(start);
+			                    left--;
+			                } else break;
+			            	}
+			      	int right = med + 1;
+			            while (right < this.suffixes.length) {
+			            	Suffix rightSuffix = this.suffixes[right];
+			                int start = rightSuffix.suffixIndex;
+			                int i = 0;
+			                while (start + i < content.length &&
+			                       i < pattern.length &&
+			                       pattern[i] == content[start + i]) {
+			                    i++;
+			                }
+			                if (i == pattern.length) {
+			                    lista.add(start);
+			                    right++;
+			                } else break;
+			            }
+
+					break;
+			}
+			if(s + indice >= content.length || pattern[indice] < content[s + indice]) {high = med--; indice = 0;}
+			else if(s + indice <= 0 || pattern[indice] > content[s + indice]) {low = med++; indice = 0;}
+			if(high<=low) search = false;
+		}
+		return lista;
 	}
 
 	public static void main(String[] args) {
